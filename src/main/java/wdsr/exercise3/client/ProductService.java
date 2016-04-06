@@ -6,6 +6,14 @@ import java.util.Set;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.codehaus.jackson.map.util.JSONPObject;
 
 import wdsr.exercise3.model.Product;
 import wdsr.exercise3.model.ProductType;
@@ -15,13 +23,23 @@ public class ProductService extends RestClientBase {
 		super(serverHost, serverPort, client);
 	}
 	
+	@Context
+	Application application;
+	
 	/**
 	 * Looks up all products of given types known to the server.
 	 * @param types Set of types to be looked up
 	 * @return A list of found products - possibly empty, never null.
 	 */
 	public List<Product> retrieveProducts(Set<ProductType> types) {
-		// TODO
+		Client client = ClientBuilder.newClient();
+		WebTarget webTarget = client.target("http://localhost:8090").path("/products");
+		Response response = webTarget
+		        .request(MediaType.APPLICATION_JSON)
+		        .get();
+		//System.out.println(response.readEntity(String.class));
+		JSONPObject json = new JSONPObject(response.readEntity(String.class), Product.class);
+		System.out.println(json.getFunction());
 		return null;
 	}
 	
