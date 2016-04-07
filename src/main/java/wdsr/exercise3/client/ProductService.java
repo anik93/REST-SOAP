@@ -19,7 +19,7 @@ import wdsr.exercise3.model.ProductType;
 public class ProductService extends RestClientBase {	
 	
 
-	WebTarget webtarget = baseTarget.path("products");
+	private final WebTarget webtarget = baseTarget.path("products");
 	
 	protected ProductService(final String serverHost, final int serverPort, final Client client) {
 		super(serverHost, serverPort, client);
@@ -32,10 +32,10 @@ public class ProductService extends RestClientBase {
 	 */
 	public List<Product> retrieveProducts(Set<ProductType> types) {
 		return webtarget
-                .request(MediaType.APPLICATION_JSON)
+                .request()
                 .get(new GenericType<List<Product>>() {})
                 .stream()
-                .filter(x->types.contains(x.getType()))
+                .filter(x -> types.contains(x.getType()))
                 .collect(Collectors.toList());
 		/*List<Product> listOfProducts = webtarget
                 .request(MediaType.APPLICATION_JSON)
@@ -50,7 +50,7 @@ public class ProductService extends RestClientBase {
 	 */
 	public List<Product> retrieveAllProducts() {
 		return webtarget
-                .request(MediaType.APPLICATION_JSON)
+                .request()
                 .get(new GenericType<List<Product>>() {});
 	}
 	
@@ -65,7 +65,7 @@ public class ProductService extends RestClientBase {
 		
 		try{
 			return target
-	                .request(MediaType.APPLICATION_JSON)
+	                .request()
 	                .get(new GenericType<Product>() {});
 		} catch (NotFoundException e){
 			throw new NotFoundException();
@@ -92,7 +92,7 @@ public class ProductService extends RestClientBase {
 			throw new WebApplicationException();
 		}
 		
-		Response response = webtarget.request(MediaType.APPLICATION_JSON).post(Entity.entity(product, MediaType.APPLICATION_JSON), Response.class);
+		Response response = webtarget.request().post(Entity.entity(product, MediaType.APPLICATION_JSON), Response.class);
 		response.close();
 		return Integer.parseInt(response.getLocation().toString().split("/")[4]);
 	}
@@ -106,7 +106,7 @@ public class ProductService extends RestClientBase {
 		if(retrieveProduct(product.getId())==null && product.getId()==null){
 			throw new NotFoundException();
 		}
-		baseTarget.path("products/"+product.getId()).request(MediaType.APPLICATION_JSON).put(Entity.entity(product, MediaType.APPLICATION_JSON));;
+		baseTarget.path("products/"+product.getId()).request().put(Entity.entity(product, MediaType.APPLICATION_JSON));;
 		//target.request(MediaType.APPLICATION_JSON).put(Entity.entity(product, MediaType.APPLICATION_JSON));
 	}
 
@@ -120,7 +120,7 @@ public class ProductService extends RestClientBase {
 		if(retrieveProduct(product.getId())==null && product.getId()==null){
 			throw new NotFoundException();
 		}
-		baseTarget.path("products/"+product.getId()).request(MediaType.APPLICATION_JSON).delete();
+		baseTarget.path("products/"+product.getId()).request().delete();
 		//target.request(MediaType.APPLICATION_JSON).delete();
 	}
 }
