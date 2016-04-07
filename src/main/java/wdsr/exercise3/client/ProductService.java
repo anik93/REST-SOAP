@@ -32,15 +32,13 @@ public class ProductService extends RestClientBase {
 	 * @return A list of found products - possibly empty, never null.
 	 */
 	public List<Product> retrieveProducts(Set<ProductType> types) {
-		Client client = ClientBuilder.newClient();
-		WebTarget webTarget = client.target("http://localhost:8090").path("/products");
-		Response response = webTarget
-		        .request(MediaType.APPLICATION_JSON)
-		        .get();
-		//System.out.println(response.readEntity(String.class));
-		JSONPObject json = new JSONPObject(response.readEntity(String.class), Product.class);
-		System.out.println(json.getFunction());
-		return null;
+		WebTarget target = baseTarget.path("products");
+		
+		List<Product> listOfProducts = target
+                .request(MediaType.APPLICATION_JSON)
+                .get(new GenericType<List<Product>>() {});
+		
+		return listOfProducts.stream().filter(x->types.contains(x.getType())).collect(Collectors.toList());	
 	}
 	
 	/**
@@ -48,8 +46,13 @@ public class ProductService extends RestClientBase {
 	 * @return A list of all products - possibly empty, never null.
 	 */
 	public List<Product> retrieveAllProducts() {
-		// TODO
-		return null;
+		WebTarget target = baseTarget.path("products");
+		
+		List<Product> listOfProducts = target
+                .request(MediaType.APPLICATION_JSON)
+                .get(new GenericType<List<Product>>() {});
+		
+		return listOfProducts;
 	}
 	
 	/**
@@ -59,8 +62,17 @@ public class ProductService extends RestClientBase {
 	 * @throws NotFoundException if no product found for the given ID.
 	 */
 	public Product retrieveProduct(int id) {
-		// TODO
-		return null;
+		WebTarget target = baseTarget.path("products/"+id);
+		
+		Product product = target
+                .request(MediaType.APPLICATION_JSON)
+                .get(new GenericType<Product>() {});
+		
+		if(product==null){
+			throw new NotFoundException();
+		} 
+		
+		return product;
 	}	
 	
 	/**
@@ -70,8 +82,15 @@ public class ProductService extends RestClientBase {
 	 * @throws WebApplicationException if request to the server failed
 	 */
 	public int storeNewProduct(Product product) {
-		// TODO
-		return 0;
+		if(product.getId()!=null){
+			throw new WebApplicationException();
+		}
+		WebTarget target = baseTarget.path("products");
+		/*Response response = target.request(MediaType.APPLICATION_JSON).post(Entity.entity(product, MediaType.APPLICATION_FORM_URLENCODED));*/
+		Product product1 = target
+				.request(MediaType.APPLICATION_JSON)
+				.post(Entity.entity(product, MediaType.APPLICATION_FORM_URLENCODED), Product.class);
+		return product1.getId();
 	}
 	
 	/**
