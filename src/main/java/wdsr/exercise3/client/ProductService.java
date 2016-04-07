@@ -1,24 +1,56 @@
 package wdsr.exercise3.client;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 
+import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.util.JSONPObject;
 
 import wdsr.exercise3.model.Product;
 import wdsr.exercise3.model.ProductType;
 
 public class ProductService extends RestClientBase {
+	
+	public class Products{
+		private List<Product> listOfProducts = new ArrayList<>();
+
+		public List<Product> getListOfProducts() {
+			return listOfProducts;
+		}
+
+		public void setListOfProducts(List<Product> listOfProducts) {
+			this.listOfProducts = listOfProducts;
+		}
+		
+	}
+	
+	
 	protected ProductService(final String serverHost, final int serverPort, final Client client) {
 		super(serverHost, serverPort, client);
 	}
@@ -86,11 +118,12 @@ public class ProductService extends RestClientBase {
 			throw new WebApplicationException();
 		}
 		WebTarget target = baseTarget.path("products");
-		/*Response response = target.request(MediaType.APPLICATION_JSON).post(Entity.entity(product, MediaType.APPLICATION_FORM_URLENCODED));*/
-		Product product1 = target
-				.request(MediaType.APPLICATION_JSON)
-				.post(Entity.entity(product, MediaType.APPLICATION_FORM_URLENCODED), Product.class);
-		return product1.getId();
+		target.request(MediaType.APPLICATION_JSON).post(Entity.entity(product, MediaType.APPLICATION_JSON), Response.class);
+		/*Product product1 = client.target("localhost:8090/products")
+				.request()
+				.post(Entity.entity(product, MediaType.APPLICATION_JSON), Product.class);
+		return product1.getId();*/
+		return retrieveAllProducts().stream().filter(x->x.getName().equals(product.getName()) && x.getType().equals(product.getType())).findFirst().get().getId();
 	}
 	
 	/**
@@ -99,7 +132,11 @@ public class ProductService extends RestClientBase {
 	 * @throws NotFoundException if no product found for the given ID.
 	 */
 	public void updateProduct(Product product) {
-		// TODO
+		if(retrieveProduct(product.getId()).getId()==null && product.getId()==null){
+			throw new NotFoundException();
+		}
+		WebTarget target = baseTarget.path("products/"+product.getId());
+		target.request(MediaType.APPLICATION_JSON).put(Entity.entity(product, MediaType.APPLICATION_JSON));
 	}
 
 	
@@ -109,6 +146,10 @@ public class ProductService extends RestClientBase {
 	 * @throws NotFoundException if no product found for the given ID.
 	 */
 	public void deleteProduct(Product product) {
-		// TODO
+		if(retrieveProduct(product.getId()).getId()==null && product.getId()==null){
+			throw new NotFoundException();
+		}
+		WebTarget target = baseTarget.path("products/"+product.getId());
+		target.request(MediaType.APPLICATION_JSON).delete();
 	}
 }
