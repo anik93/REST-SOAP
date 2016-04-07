@@ -7,7 +7,6 @@ import javax.inject.Inject;
 import javax.ws.rs.Consumes; 
 import javax.ws.rs.DELETE; 
 import javax.ws.rs.GET; 
-import javax.ws.rs.NotFoundException; 
 import javax.ws.rs.POST; 
 import javax.ws.rs.PUT; 
 import javax.ws.rs.Path; 
@@ -87,7 +86,7 @@ public class RecordResource {
 	public Response getRecord(@PathParam(value = "id") int id){ 
 		Record record = recordInventory.getRecord(id); 
 		if(record!=null){ 
-			return Response.ok(recordInventory.getRecord(id)).build(); 
+			return Response.ok(record).build(); 
 		}else{ 
 			return Response.status(Status.NOT_FOUND).build(); 
 		} 
