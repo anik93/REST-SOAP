@@ -103,7 +103,7 @@ public class ProductService extends RestClientBase {
 	 * @throws NotFoundException if no product found for the given ID.
 	 */
 	public void updateProduct(Product product) {
-		if(retrieveProduct(product.getId())==null && product.getId()==null){
+		if(retrieveProduct(product.getId())==null || product.getId()==null){
 			throw new NotFoundException();
 		}
 		baseTarget.path("products/"+product.getId()).request().put(Entity.entity(product, MediaType.APPLICATION_JSON));;
@@ -117,7 +117,7 @@ public class ProductService extends RestClientBase {
 	 * @throws NotFoundException if no product found for the given ID.
 	 */
 	public void deleteProduct(Product product) {
-		if(retrieveProduct(product.getId())==null && product.getId()==null){
+		if(retrieveProduct(product.getId())==null || product.getId()==null){
 			throw new NotFoundException();
 		}
 		baseTarget.path("products/"+product.getId()).request().delete();
