@@ -63,7 +63,7 @@ public class RecordResource {
 	@Consumes(MediaType.APPLICATION_XML) 
 	@Produces(MediaType.APPLICATION_XML) 
 	public Response createProduct(Record record, @Context UriInfo uriInfo) { 
-		if(recordInventory.getRecords().stream().filter(x -> x.equals(record)).collect(Collectors.toList()).isEmpty() && record.getId()==null){ 
+		if(recordInventory.getRecords().stream().filter(record::equals).collect(Collectors.toList()).isEmpty() && record.getId()==null){ 
 			recordInventory.addRecord(record); 
 			UriBuilder builder = uriInfo.getAbsolutePathBuilder(); 
 			builder.path(Integer.toString(record.getId())); 
