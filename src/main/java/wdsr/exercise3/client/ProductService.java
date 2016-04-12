@@ -30,18 +30,12 @@ public class ProductService extends RestClientBase {
 	 * @param types Set of types to be looked up
 	 * @return A list of found products - possibly empty, never null.
 	 */
+	// http://localhost:8090/products?type=FOOD,WHEAT
 	public List<Product> retrieveProducts(Set<ProductType> types) {
 		return webtarget
+				.queryParam("type", types.toArray())
                 .request()
-                .get(new GenericType<List<Product>>() {})
-                .stream()
-                .filter(x -> types.contains(x.getType()))
-                .collect(Collectors.toList());
-		/*List<Product> listOfProducts = webtarget
-                .request(MediaType.APPLICATION_JSON)
                 .get(new GenericType<List<Product>>() {});
-		
-		return listOfProducts.stream().filter(x->types.contains(x.getType())).collect(Collectors.toList());	*/
 	}
 	
 	/**
@@ -61,24 +55,9 @@ public class ProductService extends RestClientBase {
 	 * @throws NotFoundException if no product found for the given ID.
 	 */
 	public Product retrieveProduct(int id) {
-		WebTarget target = baseTarget.path("products/"+id);
-		
-		try{
-			return target
-	                .request()
-	                .get(new GenericType<Product>() {});
-		} catch (NotFoundException e){
-			throw new NotFoundException();
-		}
-		/*Product product = target
-                .request(MediaType.APPLICATION_JSON)
-                .get(new GenericType<Product>() {});
-		
-		if(product==null){
-			throw new NotFoundException();
-		} 
-		
-		return product;*/
+		return webtarget.path(String.valueOf(id))
+	          .request()
+	          .get(new GenericType<Product>() {});
 	}	
 	
 	/**
@@ -94,7 +73,8 @@ public class ProductService extends RestClientBase {
 		
 		Response response = webtarget.request().post(Entity.entity(product, MediaType.APPLICATION_JSON), Response.class);
 		response.close();
-		return Integer.parseInt(response.getLocation().toString().split("/")[4]);
+		//return Integer.parseInt(response.getLocation().toString().split("/")[response.getLocation().toString().split("/").length-1]);
+		return Integer.parseInt(response.getLocation().toString().substring(response.getLocation().toString().lastIndexOf("/")+1));
 	}
 	
 	/**
@@ -106,8 +86,7 @@ public class ProductService extends RestClientBase {
 		if(retrieveProduct(product.getId())==null || product.getId()==null){
 			throw new NotFoundException();
 		}
-		baseTarget.path("products/"+product.getId()).request().put(Entity.entity(product, MediaType.APPLICATION_JSON));;
-		//target.request(MediaType.APPLICATION_JSON).put(Entity.entity(product, MediaType.APPLICATION_JSON));
+		webtarget.path(String.valueOf(product.getId())).request().put(Entity.entity(product, MediaType.APPLICATION_JSON));;
 	}
 
 	
@@ -120,7 +99,6 @@ public class ProductService extends RestClientBase {
 		if(retrieveProduct(product.getId())==null || product.getId()==null){
 			throw new NotFoundException();
 		}
-		baseTarget.path("products/"+product.getId()).request().delete();
-		//target.request(MediaType.APPLICATION_JSON).delete();
+		webtarget.path(String.valueOf(product.getId())).request().delete();
 	}
 }
