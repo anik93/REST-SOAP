@@ -5,6 +5,11 @@ import java.util.Date;
 
 import javax.xml.ws.WebServiceClient;
 
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
+
+import wdsr.exercise3.ws.HumanResource;
+import wdsr.exercise3.ws.HumanResourceService;
+
 // TODO Complete this class to book holidays by issuing a request to Human Resource web service.
 // In order to see definition of the Human Resource web service:
 // 1. Run HolidayServerApp.
@@ -13,12 +18,16 @@ import javax.xml.ws.WebServiceClient;
 				targetNamespace = "http://localhost:8090/holidayService", 
 				wsdlLocation = "http://localhost:8090/holidayService/?wsdl")
 public class HolidayClient {
+	
+	private HumanResourceService hrs;
+	//JaxWsProxyFactoryBean factory = new JaxWsProxyFactoryBean();
 	/**
 	 * Creates this object
 	 * @param wsdlLocation URL of the Human Resource web service WSDL
 	 */
 	public HolidayClient(URL wsdlLocation) {
-		// TODO
+		hrs = new HumanResourceService(wsdlLocation);
+		//factory.create();
 	}
 	
 	/**
